@@ -24,65 +24,10 @@ The final solution delivers a reporting layer designed for both executive leader
 
 ---
 
-## 🏗️ Solution Architecture
+## 🏗️ Pipeline
 
-Documents/meridian_pipeline.png
+![Pipeline](Documents/meridian_pipeline.png)
 
-### Data Flow
-
-```text
-Source Files
-├── Orders
-├── OrderLines
-├── Products
-├── Customers
-├── Budget
-└── Security
-
-        │
-        ▼
-
-Python ETL
-(Pandas + SQLAlchemy)
-
-        │
-        ▼
-
-MySQL Raw Layer
-
-        │
-        ▼
-
-SQL Transformations
-
-        │
-        ▼
-
-Star Schema
-├── fact_sales
-├── fact_order_process
-├── dim_products
-├── dim_customers
-├── dim_city
-└── dim_date
-
-        │
-        ▼
-
-Power BI Semantic Model
-├── Relationships
-├── DAX Measures
-├── Calculated Columns
-├── Row-Level Security
-└── KPI Logic
-
-        │
-        ▼
-
-Business Dashboards
-├── Are We Growing Profitably?
-└── Order Fulfillment & Operations
-```
 
 ---
 
@@ -106,13 +51,12 @@ End-to-End-Order-to-Cash-Analytics-Platform/
 │   ├── 05_dim_city.sql
 │   ├── 06_dim_date.sql
 │   └── 99_validation.sql
-│
+Load to power PI
 ├── Documents/
-│   ├── data_model.png
-│   ├── meridian_pipeline.png
-│   ├── DAX_Measure_Library.dax
+│   ├── Measure.dax data_model.png
 │   ├── are-we-growing-profitably-dashboard.png
-│   └── order-fulfillment-and-operations-dashboard.png
+│   ├──  meridian_pipeline.png
+│   └── order-fulfillment-and-operations-dashboard.png 
 │
 ├── README.md
 └── LICENSE
@@ -380,7 +324,7 @@ Documents/DAX_Measure_Library.dax
 
 ## 📈 Dashboard 1: Are We Growing Profitably?
 
-![cuments/are-we-growing-profitably-dashboard.png
+![Are We Growing Profitably](Documents/are-we-growing-profitably-dashboard.png)
 
 ### Business Questions Answered
 
@@ -402,7 +346,7 @@ Documents/DAX_Measure_Library.dax
 
 ## 🚚 Dashboard 2: Order Fulfillment & Operations
 
-Documents/order-fulfillment-and-operations-dashboard.png
+![Order Fulfillment & Operations](Documents/order-fulfillment-and-operations-dashboard.png)
 
 ### Business Questions Answered
 
