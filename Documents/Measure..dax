@@ -1,0 +1,357 @@
+/* =============================================================================
+   Meridian Office & Tech Supply Co. — DAX Measure Library
+   Order-to-Cash Analytics Platform · 2022 – 2025
+
+   This file is a reference copy of every measure and calculated column
+   defined in the Power BI model. It is not executed by Power BI — the
+   source of truth is the .pbix file. Keep this file in sync when you
+   add or rename measures.
+
+   Sections:
+     1. Base measures
+     2. Order counts and status rates
+     3. Profitability
+     4. Time intelligence
+     5. Fulfilment and lifecycle
+     6. AR aging
+     7. Ranking and top/bottom N
+     8. Budget vs actuals
+     9. Conditional formatting helpers
+    10. Calculated columns
+   ============================================================================= */
+
+
+/* -----------------------------------------------------------------------------
+   1. BASE MEASURES
+   ----------------------------------------------------------------------------- */
+
+-- Revenue from completed orders only. This is the base for most other
+-- measures, so it is explicitly named to avoid confusion with
+-- [Total Sales All Orders].
+Total Sales =
+CALCULATE (
+    SUM ( fact_sales[sales] ),
+    fact_order_process[order_status] = "Completed"
+)
+
+-- Revenue across all orders regardless of status. Use this for the
+-- "gross transactions" view; use [Total Sales] for the "realised
+-- revenue" view.
+Total Sales All Orders =
+SUM ( fact_sales[sales] )
+
+
+/* -----------------------------------------------------------------------------
+   2. ORDER COUNTS AND STATUS RATES
+   ----------------------------------------------------------------------------- */
+
+-- Distinct orders across all statuses.
+Total Orders =
+DISTINCTCOUNT ( fact_sales[order_id] )
+
+-- Distinct completed orders.
+Completed Orders =
+CALCULATE (
+    DISTINCTCOUNT ( fact_sales[order_id] ),
+    fact_order_process[order_status] = "Completed"
+)
+
+-- Distinct cancelled orders.
+Cancelled Orders =
+CALCULATE (
+    DISTINCTCOUNT ( fact_sales[order_id] ),
+    fact_order_process[order_status] = "Cancelled"
+)
+
+-- Distinct returned orders.
+Returned Orders =
+CALCULATE (
+    DISTINCTCOUNT ( fact_sales[order_id] ),
+    fact_order_process[order_status] = "Returned"
+)
+
+-- Percentage of orders that reached Completed status.
+% Completed =
+DIVIDE ( [Completed Orders], [Total Orders] )
+
+-- Percentage of orders that were Cancelled.
+% cancellation =
+DIVIDE ( [Cancelled Orders], [Total Orders] )
+
+-- Percentage of orders that were Returned.
+% Returned =
+DIVIDE ( [Returned Orders], [Total Orders] )
+
+
+/* -----------------------------------------------------------------------------
+   3. PROFITABILITY
+   ----------------------------------------------------------------------------- */
+
+-- Average order value across completed orders only.
+-- (Sales of completed orders) ÷ (count of completed orders).
+AOV =
+CALCULATE (
+    DIVIDE (
+        SUM ( fact_sales[sales] ),
+        DISTINCTCOUNT ( fact_sales[order_id] )
+    ),
+    fact_order_process[order_status] = "Completed"
+)
+
+-- Cost of goods sold for completed orders. Uses RELATED() to pull the
+-- year-correct unit_cost from dim_products via the product_key
+-- relationship.
+Total Cost =
+CALCULATE (
+    SUMX (
+        fact_sales,
+        fact_sales[quantity] * RELATED ( dim_products[unit_cost] )
+    ),
+    fact_order_process[order_status] = "Completed"
+)
+
+-- Gross profit in dollar terms.
+Total Profit =
+[Total Sales] - [Total Cost]
+
+-- Gross profit as a percentage of revenue.
+Profit Margin % =
+DIVIDE ( [Total Profit], [Total Sales] )
+
+-- Average monthly revenue across all months in the current filter context.
+Average Monthly Revenue =
+DIVIDE (
+    [Total Sales],
+    DISTINCTCOUNT ( dim_date[Month Year] )
+)
+
+
+/* -----------------------------------------------------------------------------
+   4. TIME INTELLIGENCE
+   ----------------------------------------------------------------------------- */
+-- (Add YoY / YTD / MTD measures here as you build them.)
+
+
+/* -----------------------------------------------------------------------------
+   5. FULFILMENT AND LIFECYCLE
+   ----------------------------------------------------------------------------- */
+
+-- Number of days between order placement and payment receipt.
+Avg Days to Payment =
+CALCULATE (
+    AVERAGE ( fact_order_process[Days Outstanding] ),
+    fact_order_process[order_status] = "Completed"
+)
+
+-- Average days from order placement to delivery.
+Avg Order-to-Delivery Days =
+AVERAGE ( fact_order_process[Order-to-Delivery Days] )
+
+-- Average days from order placement to payment.
+Avg Order-to-Pay Days =
+CALCULATE (
+    AVERAGE ( fact_order_process[Order-to-Pay Days] ),
+    fact_order_process[order_status] = "Completed"
+)
+
+-- SLA threshold for delivery, in days. Used in conditional formatting
+-- and "on-time %" calculations.
+TargetDays = 30
+
+
+/* -----------------------------------------------------------------------------
+   6. AR AGING
+   ----------------------------------------------------------------------------- */
+
+-- Colour scale for the AR aging bucket chart, ranked by total sales.
+-- The highest-revenue bucket gets the darkest navy; each subsequent
+-- bucket gets progressively lighter.
+AR Aging Color =
+VAR RankBucket =
+    RANKX (
+        ALLSELECTED ( fact_order_process[AR Aging Bucket] ),
+        [Total Sales],
+        ,
+        DESC,
+        DENSE
+    )
+RETURN
+    SWITCH (
+        RankBucket,
+        1, "#0B2E4F",
+        2, "#1B4F7A",
+        3, "#2E6DA4",
+        4, "#A9C8E0",
+        "#E8F5E9"
+    )
+
+
+/* -----------------------------------------------------------------------------
+   7. RANKING AND TOP/BOTTOM N
+   ----------------------------------------------------------------------------- */
+
+-- Rank products by total sales, highest first.
+Product Rank Top =
+RANKX (
+    ALLSELECTED ( dim_products[product_name] ),
+    [Total Sales],
+    ,
+    DESC,
+    DENSE
+)
+
+-- Rank products by total sales, lowest first.
+Product Rank Bottom =
+RANKX (
+    ALLSELECTED ( dim_products[product_name] ),
+    [Total Sales],
+    ,
+    ASC,
+    DENSE
+)
+
+-- Sales for the top 5 products only; blank for everything else.
+-- Use in a card visual or bar chart to isolate the leaderboard.
+Top 5 Sales =
+IF ( [Product Rank Top] <= 5, [Total Sales] )
+
+-- Sales for the bottom 5 products only.
+Bottom 5 Sales =
+IF ( [Product Rank Bottom] <= 5, [Total Sales] )
+
+
+/* -----------------------------------------------------------------------------
+   8. BUDGET VS ACTUALS
+   ----------------------------------------------------------------------------- */
+
+-- Budgeted revenue from the Budget table.
+Budget Revenue =
+SUM ( Budget[budget_revenue] )
+
+-- Dollar variance: actual sales minus budget.
+Budget Variance =
+[Total Sales] - [Budget Revenue]
+
+-- Percentage variance: actual vs budget.
+Budget Variance % =
+DIVIDE (
+    [Total Sales] - [Budget Revenue],
+    [Budget Revenue]
+)
+
+
+/* -----------------------------------------------------------------------------
+   9. CONDITIONAL FORMATTING HELPERS
+   ----------------------------------------------------------------------------- */
+
+-- Status colour mapping. Returns a hex code for the current status
+-- value, used in table/matrix conditional formatting.
+Status Color =
+SWITCH (
+    SELECTEDVALUE ( fact_order_process[order_status] ),
+    "Completed", "#0B8F5C",
+    "Returned",  "#D68910",
+    "Cancelled", "#C0392B",
+    "#BDBDBD"
+)
+
+-- Payment method colour, ranked version. Highest-revenue method gets
+-- the darkest green.
+-- NOTE: superseded by Payment Method Colorr, which uses percentile
+-- positioning. Delete one of the two — keeping both invites confusion.
+Payment Method Color =
+VAR RankPayment =
+    RANKX (
+        ALLSELECTED ( fact_order_process[payment_method] ),
+        [Total Sales],
+        ,
+        DESC,
+        DENSE
+    )
+RETURN
+    SWITCH (
+        RankPayment,
+        1, "#0B3D0B",   -- Deep Forest Green
+        2, "#1B5E20",   -- Dark Green
+        3, "#388E3C",   -- Medium Green
+        4, "#66BB6A",   -- Light Green
+        5, "#A5D6A7",   -- Pale Green
+        "#E8F5E9"       -- Very Pale Green
+    )
+
+-- Payment method colour, percentile version. Distributes the palette
+-- proportionally so it works with any number of payment methods.
+Payment Method Colorr =
+VAR CurrentRank =
+    RANKX (
+        ALLSELECTED ( fact_order_process[payment_method] ),
+        [Total Sales],
+        ,
+        DESC,
+        DENSE
+    )
+VAR TotalMethods =
+    COUNTROWS ( ALLSELECTED ( fact_order_process[payment_method] ) )
+VAR Position =
+    DIVIDE ( CurrentRank - 1, MAX ( TotalMethods - 1, 1 ) )
+RETURN
+    SWITCH (
+        TRUE (),
+        Position <= 0.2, "#0B2E4F",
+        Position <= 0.4, "#1B4F7A",
+        Position <= 0.6, "#2E6DA4",
+        Position <= 0.8, "#5C93C4",
+        "#A9C8E0"
+    )
+
+
+/* -----------------------------------------------------------------------------
+   10. CALCULATED COLUMNS
+   -----------------------------------------------------------------------------
+   These live on fact_order_process, not in the _measure table. They are
+   computed once per refresh and stored in the model.
+   ----------------------------------------------------------------------------- */
+
+-- Days from invoice date to payment date. Blank for unpaid orders.
+-- Column: fact_order_process[Days Outstanding]
+Days Outstanding =
+DATEDIFF (
+    fact_order_process[invoice_date],
+    fact_order_process[payment_date],
+    DAY
+)
+
+-- Days from order date to delivery date.
+-- Column: fact_order_process[Order-to-Delivery Days]
+Order-to-Delivery Days =
+DATEDIFF (
+    fact_order_process[order_date],
+    fact_order_process[delivery_date],
+    DAY
+)
+
+-- Days from order date to payment date.
+-- Column: fact_order_process[Order-to-Pay Days]
+Order-to-Pay Days =
+DATEDIFF (
+    fact_order_process[order_date],
+    fact_order_process[payment_date],
+    DAY
+)
+
+-- Aging bucket label based on Days Outstanding.
+-- Column: fact_order_process[AR Aging Bucket]
+AR Aging Bucket =
+SWITCH (
+    TRUE (),
+    fact_order_process[Days Outstanding] <= 30,  "0-30 Days",
+    fact_order_process[Days Outstanding] <= 60,  "31-60 Days",
+    fact_order_process[Days Outstanding] <= 90,  "61-90 Days",
+    fact_order_process[Days Outstanding] <= 120, "91-120 Days",
+    "120+ Days"
+)
+
+-- Month-year label for time-based visuals.
+-- Column: dim_date[Month Year]
+Month Year =
+FORMAT ( dim_date[Date], "MMM YYYY" )
