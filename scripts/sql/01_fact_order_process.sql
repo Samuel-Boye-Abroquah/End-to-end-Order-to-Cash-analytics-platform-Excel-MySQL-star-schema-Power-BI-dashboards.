@@ -38,7 +38,7 @@ UNION ALL
 SELECT
     order_id, customer_id, order_date, order_confirmation_date, ship_date,
     delivery_date, invoice_date, payment_date, payment_method,
-    shipping_state, order_status, payment_status
+    shipping_state, status, payment_status
 FROM Orders_2024
 
 UNION ALL
