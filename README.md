@@ -98,6 +98,9 @@ Row-Level Security is applied dynamically via a `Security` table (imported direc
 
 ## About
 
-Built by **Samuel Boye Abroquah** — Quality Assurance & Data Analytics professional.
+## About
 
-[LinkedIn](https://linkedin.com/in/Samuel-Boye-Abroquah)
+Built by **Samuel Boye Abroquah** — Quality Assurance & Data Analytics professional, applying 12+ years of process-validation discipline to data engineering.
+
+   [LinkedIn](https://linkedin.com/in/Samuel-Boye-Abroquah)
+   [GitHub](https://github.com/Samuel-Boye-Abroquah)
