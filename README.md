@@ -8,15 +8,11 @@ An end-to-end analytics pipeline for a simulated multi-year office & tech supply
 
 ![Pipeline](Documents/meridian_pipeline.png)
 
-
 ---
 
 ## 📂 Repository Structure
 
 ```
-## 📂 Repository Structure
-
-```text
 End-to-End-Order-to-Cash-Analytics-Platform/
 │
 ├── Dataset/
@@ -43,6 +39,7 @@ End-to-End-Order-to-Cash-Analytics-Platform/
 │
 ├── README.md
 └── LICENSE
+```
 
 ---
 
