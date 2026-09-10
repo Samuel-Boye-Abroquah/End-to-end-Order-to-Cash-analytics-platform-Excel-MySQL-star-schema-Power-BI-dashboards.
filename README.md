@@ -17,7 +17,7 @@
 <p align="center">
   <b>An end-to-end analytics pipeline</b> that turns a raw multi-sheet Excel workbook
   into a governed star schema, a live Power BI semantic model, and an executive
-  dashboard suite — with full reproducibility from a single command.
+  dashboard suite — fully reproducible from a single command.
 </p>
 
 ---
@@ -26,6 +26,7 @@
 
 - [Overview](#-overview)
 - [Headline Results](#-headline-results)
+- [Dashboard Preview](#-dashboard-preview)
 - [Architecture](#-architecture)
 - [Project Structure](#-project-structure)
 - [Getting Started](#-getting-started)
@@ -47,7 +48,7 @@
 **Meridian Office & Tech Supply Co.** is a fictional office-supply and
 technology retailer operating across multiple US states. This project
 reconstructs its full **Order-to-Cash** analytics platform from a single
-source workbook containing four years of transactional data (2022–2025).
+source workbook containing four years of transactional data (2022 – 2025).
 
 The goal: replace ad-hoc spreadsheet reporting with a **reproducible,
 governed, and validated** analytics stack that any analyst can rebuild
@@ -85,12 +86,28 @@ Four years of data, fully reconciled against budget:
 
 ---
 
+## 📊 Dashboard Preview
+
+### Executive Summary — Are We Growing Profitably?
+
+![Are We Growing Profitably Dashboard](Documents/are-we-growing-profitably-dashboard.png)
+
+*Revenue vs budget, YoY growth, and profit margin at a glance.*
+
+### Order Fulfilment & Operations
+
+![Order Fulfilment & Operations Dashboard](Documents/order-fulfillment-and-operations-dashboard.png)
+
+*Order cycle times, AR aging buckets, and payment-method mix.*
+
+---
+
 ## 🏗 Architecture
 
 ```text
 ┌───────────────────────────┐
 │  Excel Workbook (.xlsx)   │   One file, N sheets
-│  Meridian_OrderToCash     │   Orders · OrderLines · Products · Customers · security
+│  Dataset/                 │   Orders · OrderLines · Products · Customers
 └──────────────┬────────────┘
                │  pandas.read_excel(sheet_name=None)
                ▼
@@ -102,7 +119,7 @@ Four years of data, fully reconciled against budget:
                ▼
 ┌───────────────────────────┐
 │  MySQL — Star Schema      │   fact_sales · fact_order_process
-│  (presentation)           │   dim_products · dim_customers · dim_city · dim_date · sec
+│  (presentation)           │   dim_products · dim_customers · dim_city · dim_date
 └──────────────┬────────────┘
                │  ODBC / MySQL connector
                ▼
@@ -121,37 +138,32 @@ Four years of data, fully reconciled against budget:
 ## 📁 Project Structure
 
 ```text
-meridian-order-to-cash-analytics/
+End-to-end-Order-to-Cash-analytics-platform-Excel-MySQL-star-schema-Power-BI-dashboards/
 │
 ├── README.md                        ← You are here
 ├── LICENSE
-├── .gitignore                       ← Keeps .env, .xlsx, and caches out of git
-├── .env.example                     ← Credential template (never commit .env)
-├── requirements.txt
-├── run_all.sql                      ← Single entry point for the SQL layer
+├── .gitignore
 │
-├── etl/
-│   └── load_excel.py                ← Reads every sheet → MySQL tables
+├── Dataset/
+│   ├── Meridian_OfficeSupply_OrderToCash_2022-2025.xlsx
+│   └── security.csv
 │
-├── sql/
-│   ├── 00_setup.sql                 ← Schema selection
-│   ├── 01_fact_order_process.sql    ← Order-header grain fact
-│   ├── 02_fact_sales.sql            ← Order-line grain fact
-│   ├── 03_dim_products.sql          ← Product × year dimension
-│   ├── 04_dim_customers.sql         ← Customer dimension
-│   ├── 05_dim_city.sql              ← City/state geo dimension
-│   ├── 06_dim_date.sql              ← Calendar spine + Power BI view
-│   ├── 07_sec.sql                   ← Security pass-through view
-│   └── 99_validation.sql            ← Seven sanity checks
+├── Documents/
+│   ├── are-we-growing-profitably-dashboard.png
+│   └── order-fulfillment-and-operations-dashboard.png
 │
-├── powerbi/
-│   ├── Meridian_OrderToCash.pbix    ← Semantic model + dashboards
-│   └── measures.dax                 ← DAX measure reference (plain text)
-│
-└── docs/
-    ├── data_dictionary.md           ← Column-level documentation
-    ├── model_diagram.png            ← Star schema diagram
-    └── screenshots/                 ← Dashboard previews
+└── scripts/
+    ├── python/
+    │   └── load_excel.py            ← Reads every sheet → MySQL tables
+    │
+    └── sql/
+        ├── 01_fact_order_process.sql
+        ├── 02_fact_sales.sql
+        ├── 03_dim_products.sql
+        ├── 04_dim_customers.sql
+        ├── 05_dim_city.sql
+        ├── 06_dim_date.sql
+        └── 99_validation.sql
 ```
 
 ---
@@ -170,8 +182,8 @@ meridian-order-to-cash-analytics/
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/<your-username>/meridian-order-to-cash-analytics.git
-cd meridian-order-to-cash-analytics
+git clone https://github.com/Samuel-Boye-Abroquah/End-to-end-Order-to-Cash-analytics-platform-Excel-MySQL-star-schema-Power-BI-dashboards.git
+cd End-to-end-Order-to-Cash-analytics-platform-Excel-MySQL-star-schema-Power-BI-dashboards
 ```
 
 ### 2. Install Python dependencies
@@ -179,54 +191,54 @@ cd meridian-order-to-cash-analytics
 ```bash
 python -m venv .venv
 source .venv/bin/activate        # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
+pip install pandas openpyxl sqlalchemy pymysql
 ```
 
-### 3. Configure credentials
-
-```bash
-cp .env.example .env
-```
-
-Then edit `.env` with your MySQL credentials:
-
-```dotenv
-MERIDIAN_DB_USER=your_mysql_user
-MERIDIAN_DB_PASSWORD=your_mysql_password
-MERIDIAN_DB_HOST=localhost
-MERIDIAN_DB_PORT=3306
-MERIDIAN_DB_NAME=Meridian_OfficeSupply_OrderToCash_2022_2025
-```
-
-> ⚠️ `.env` is **gitignored**. Never commit real credentials.
-
-### 4. Create the target database
+### 3. Create the target database
 
 ```sql
 CREATE DATABASE Meridian_OfficeSupply_OrderToCash_2022_2025
   CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
-### 5. Run the pipeline
+### 4. Run the extraction
+
+Edit `scripts/python/load_excel.py` and set your MySQL credentials
+and the path to the workbook. Then:
 
 ```bash
-# Extract: Excel → MySQL raw tables
-python etl/load_excel.py
-
-# Transform: Raw tables → star schema views + validation
-mysql -u "$MERIDIAN_DB_USER" -p "$MERIDIAN_DB_NAME" < run_all.sql
+python scripts/python/load_excel.py
 ```
+
+### 5. Build the star schema
+
+Run the SQL files in `scripts/sql/` **in numerical order**:
+
+```bash
+mysql -u <user> -p Meridian_OfficeSupply_OrderToCash_2022_2025 < scripts/sql/01_fact_order_process.sql
+mysql -u <user> -p Meridian_OfficeSupply_OrderToCash_2022_2025 < scripts/sql/02_fact_sales.sql
+mysql -u <user> -p Meridian_OfficeSupply_OrderToCash_2022_2025 < scripts/sql/03_dim_products.sql
+mysql -u <user> -p Meridian_OfficeSupply_OrderToCash_2022_2025 < scripts/sql/04_dim_customers.sql
+mysql -u <user> -p Meridian_OfficeSupply_OrderToCash_2022_2025 < scripts/sql/05_dim_city.sql
+mysql -u <user> -p Meridian_OfficeSupply_OrderToCash_2022_2025 < scripts/sql/06_dim_date.sql
+mysql -u <user> -p Meridian_OfficeSupply_OrderToCash_2022_2025 < scripts/sql/99_validation.sql
+```
+
+> ⚠️ Run `06_dim_date.sql` as a **single batch** (Ctrl+Shift+Enter in MySQL Workbench,
+> or via the `mysql` shell). It sets `cte_max_recursion_depth` at session level,
+> which must persist to the recursive `INSERT` that follows.
 
 ### 6. Open Power BI
 
-Launch `powerbi/Meridian_OrderToCash.pbix` and refresh. The model will
-pull fresh data through the ODBC connection defined in the file.
+Open the `.pbix` file (in `Documents/` or `powerbi/`, wherever you keep it)
+and refresh. The model will pull fresh data through the ODBC connection
+defined in the file.
 
 ---
 
 ## 🛠 The Pipeline, Step by Step
 
-### Step 1 — Excel → MySQL (`etl/load_excel.py`)
+### Step 1 — Excel → MySQL (`scripts/python/load_excel.py`)
 
 The workbook is read with `pandas.read_excel(sheet_name=None)`, which
 returns every sheet as a DataFrame keyed by sheet name. Each sheet is
@@ -241,11 +253,11 @@ spaces replaced by underscores.
 | `OrderLines_2022` … `OrderLines_2025` | `orderlines_2022` … `orderlines_2025` |
 | `Products` | `products` |
 | `Customers` | `customers` |
-| `security` | `security` |
+| `security` (from CSV) | `security` |
 
-### Step 2 — Raw tables → Star schema (`sql/*.sql`)
+### Step 2 — Raw tables → Star schema (`scripts/sql/*.sql`)
 
-Nine SQL files build the presentation layer. Each is idempotent — safe
+Seven SQL files build the presentation layer. Each is idempotent — safe
 to re-run without side effects.
 
 | File | Object | Grain |
@@ -256,7 +268,7 @@ to re-run without side effects.
 | `04_dim_customers.sql` | `dim_customers` | One row per customer |
 | `05_dim_city.sql` | `dim_city` | One row per city/state |
 | `06_dim_date.sql` | `dim_date` (view) + `dim_date_tbl` (table) | One row per day |
-| `07_sec.sql` | `sec` | Pass-through of `security` |
+| `99_validation.sql` | *(read-only)* | Seven sanity checks |
 
 ### Step 3 — MySQL → Power BI
 
@@ -303,7 +315,7 @@ Classic **star schema** with two fact tables at different grains:
                                                 └──────────────┘
 
                               ┌──────────────┐
-                              │   Security   │  (disconnected, RLS only)
+                              │   security   │  (drives RLS)
                               └──────────────┘
 ```
 
@@ -335,7 +347,7 @@ connected via **inactive** relationships, activated per-measure with
 **Connection:** MySQL ODBC → Import mode.
 **Relationships:** one-to-many, single-direction, from dimensions to facts.
 **Date table:** `dim_date[Date]` marked as the model's date table, with
-`Year → Quarter → MonthName → Date` hierarchy.
+a `Year → Quarter → MonthName → Date` hierarchy.
 
 ### Relationship map
 
@@ -350,14 +362,30 @@ connected via **inactive** relationships, activated per-measure with
 | `dim_date[Date]` | `fact_order_process[invoice_date]` | 1 : * | ❌ |
 | `dim_date[Date]` | `fact_order_process[payment_date]` | 1 : * | ❌ |
 | `dim_date[Date]` | `Budget[date]` | 1 : * | ✅ |
-| `Security` | *(none — RLS only)* | — | — |
+| `security` | *(drives RLS — no physical relationship)* | — | — |
+
+### Row-Level Security
+
+The `security` table holds one row per authorised user (Email, Name,
+Position, State). It drives row-level security in Power BI through a
+DAX filter on `dim_city`:
+
+```dax
+dim_city[state] IN
+CALCULATETABLE (
+    VALUES ( security[state] ),
+    security[email] = USERPRINCIPALNAME()
+)
+```
+
+To test locally: **Modeling** → **View as** → select the role → enter a
+test email that exists in `security[email]`.
 
 ---
 
 ## 🧮 DAX Measure Library
 
-A reference copy of every measure lives in `powerbi/measures.dax`.
-Highlights:
+Highlights from the model:
 
 ```dax
 -- Revenue (Completed)
@@ -372,12 +400,14 @@ Total Sales All Orders =
 SUM ( fact_sales[sales] )
 
 -- Budget + Variance
-Budget Revenue   = SUM ( Budget[budget_revenue] )
-Budget Variance  = [Total Sales] - [Budget Revenue]
+Budget Revenue    = SUM ( Budget[budget_revenue] )
+Budget Variance   = [Total Sales] - [Budget Revenue]
 Budget Variance % = DIVIDE ( [Budget Variance], [Budget Revenue] )
 
 -- Order counts
-Total Orders     = DISTINCTCOUNT ( fact_sales[order_id] )
+Total Orders =
+DISTINCTCOUNT ( fact_sales[order_id] )
+
 Completed Orders =
 CALCULATE (
     DISTINCTCOUNT ( fact_sales[order_id] ),
@@ -394,8 +424,8 @@ CALCULATE (
     SUMX ( fact_sales, fact_sales[quantity] * RELATED ( dim_products[unit_cost] ) ),
     fact_order_process[order_status] = "Completed"
 )
-Total Profit     = [Total Sales] - [Total Cost]
-Profit Margin %  = DIVIDE ( [Total Profit], [Total Sales] )
+Total Profit    = [Total Sales] - [Total Cost]
+Profit Margin % = DIVIDE ( [Total Profit], [Total Sales] )
 
 -- YoY
 YoY Sales Growth % =
@@ -417,13 +447,15 @@ CALCULATE (
 )
 ```
 
+A full copy of every measure lives in `Documents/measures.dax` (if you
+want to commit one) or in the `.pbix` file itself.
+
 ---
 
 ## ✅ Validation & Quality Gates
 
-Seven checks run automatically as part of `run_all.sql` (via
-`99_validation.sql`). Any failure means the pipeline is broken and the
-model should not be refreshed.
+Seven checks in `scripts/sql/99_validation.sql`. Any failure means the
+pipeline is broken and the model should not be refreshed.
 
 | # | Check | Expected |
 | :- | :--- | :--- |
@@ -432,13 +464,13 @@ model should not be refreshed.
 | 3 | `fact_order_process` row count = distinct `order_id` | Identical |
 | 4 | `dim_date` span | 2022-01-01 → 2025-12-31, 1,461 rows |
 | 5 | Orphan products in `fact_sales` | **0** |
-| 6 | `sec` row count = `security` row count | Identical |
+| 6 | `security` row count matches source CSV | Identical |
 | 7 | `order_id` collisions across yearly tables | **0 rows** |
 
-Run the validation block independently:
+Run the validation block:
 
 ```bash
-mysql -u "$MERIDIAN_DB_USER" -p "$MERIDIAN_DB_NAME" < sql/99_validation.sql
+mysql -u <user> -p Meridian_OfficeSupply_OrderToCash_2022_2025 < scripts/sql/99_validation.sql
 ```
 
 ---
@@ -468,14 +500,9 @@ separate facts. Merging them in Power Query is the classic source of
 double-counted revenue; keeping them separate means each measure
 targets the correct grain explicitly.
 
-**`Security` is disconnected.** It exists to drive RLS via
-`USERPRINCIPALNAME()`, not to be a dimension. Any physical relationship
-would create ambiguous filter paths and break the RLS design.
-
-**Explicit column lists everywhere except `sec`.** Views that use
-`SELECT *` silently change shape when the base table does. Every view
-in this repo lists its columns explicitly, except `sec`, which is a
-deliberate pass-through and documented as such.
+**`security` drives RLS, not the schema.** It's a user lookup, not a
+dimension. It has no physical relationship to the star; instead a DAX
+role filter routes RLS through `dim_city[state]`.
 
 ---
 
@@ -490,20 +517,17 @@ deliberate pass-through and documented as such.
    `dim_products` uses.
 4. **`DayOfWeekNo` follows MySQL `DAYOFWEEK`** (1 = Sunday … 7 = Saturday).
    Adjust in DAX if you need Power BI's Monday = 1 convention.
-5. **`security` schema is stable.** The `sec` view uses `SELECT *`; if
-   the schema changes, update the view or list columns explicitly.
-6. **Budget has no category-level relationship.** `Budget[category]`
-   is present in the source but is not connected to `dim_products`.
-   Budget vs actuals is therefore time-only, not category-level.
+5. **Budget has no category-level relationship.** `Budget[category]` is
+   present in the source but is not connected to `dim_products`, so
+   budget vs actuals is time-only, not category-level.
 
 ---
 
 ## 🗺 Roadmap
 
-- [ ] CI workflow that runs `make validate` on every push
+- [ ] CI workflow that runs the validation queries on every push
 - [ ] Incremental load mode for the Python loader (append-only)
 - [ ] Data dictionary auto-generated from `information_schema`
-- [ ] Power BI deployment pipeline (`.pbix` → Power BI Service)
 - [ ] Category-level budget vs actuals (requires `dim_category` view)
 - [ ] Row-level security demo with sample user roles
 - [ ] Incremental refresh policy on `fact_sales` for large-scale deployments
@@ -516,7 +540,7 @@ deliberate pass-through and documented as such.
 Built as a portfolio project demonstrating end-to-end data pipeline
 design, star-schema modelling, and Power BI delivery.
 
-📫 Reach out via [GitHub Issues](https://github.com/<your-username>/meridian-order-to-cash-analytics/issues)
+📫 Reach out via [GitHub Issues](https://github.com/Samuel-Boye-Abroquah/End-to-end-Order-to-Cash-analytics-platform-Excel-MySQL-star-schema-Power-BI-dashboards/issues)
 for questions, bugs, or feature requests.
 
 ---
