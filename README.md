@@ -30,8 +30,9 @@ End-to-End-Order-to-Cash-Analytics-Platform/
 │   ├── 05_dim_city.sql               # City dimension
 │   ├── 06_dim_date.sql               # Date dimension
 │   └── 99_validation.sql            # Data quality and validation checks
-│
+Connecting to power BI 
 ├── Documents/
+│   ├──DAX Measure
 │   ├── data_model.png               # Star schema data model
 │   ├── meridian_pipeline.png        # End-to-end data pipeline
 │   ├── are-we-growing-profitably-dashboard.png
