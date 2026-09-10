@@ -20,7 +20,7 @@ SELECT ROUND(SUM(fs.sales), 2) AS total_sales_completed
 FROM fact_sales AS fs
 INNER JOIN fact_order_process AS fop
     ON fs.order_id = fop.order_id
-WHERE fop.order_status = 'Completed';
+WHERE fop.status = 'Completed';
 
 -- -----------------------------------------------------------------------------
 -- 3. fact_order_process row-count sanity. Expect ~18,550 rows and the two
