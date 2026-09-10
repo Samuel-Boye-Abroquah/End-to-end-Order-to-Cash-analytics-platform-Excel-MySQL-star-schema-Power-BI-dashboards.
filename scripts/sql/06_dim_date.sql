@@ -12,6 +12,14 @@
 -- DayOfWeekNo follows MySQL's DAYOFWEEK: 1 = Sunday … 7 = Saturday.
 -- =============================================================================
 
+-- Recursion depth must cover the full date range. 2022-01-01 through
+-- 2025-12-31 is 1,461 days; MySQL's default of 1,000 is not enough.
+-- SET SESSION is placed here (not in 00_setup.sql) so this file works
+-- standalone, even when executed statement-by-statement in a new
+-- connection per statement (e.g. MySQL Workbench's single-statement
+-- Execute button).
+SET SESSION cte_max_recursion_depth = 5000;
+
 -- Tear down any prior version so this script is idempotent.
 DROP VIEW  IF EXISTS dim_date;
 DROP TABLE IF EXISTS dim_date;
