@@ -32,7 +32,7 @@ End-to-End-Order-to-Cash-Analytics-Platform/
 │   └── 99_validation.sql            # Data quality and validation checks
 Connecting to power BI 
 ├── Documents/
-│   ├──DAX Measure
+│   ├──Measure..dax
 │   ├── data_model.png               # Star schema data model
 │   ├── meridian_pipeline.png        # End-to-end data pipeline
 │   ├── are-we-growing-profitably-dashboard.png
