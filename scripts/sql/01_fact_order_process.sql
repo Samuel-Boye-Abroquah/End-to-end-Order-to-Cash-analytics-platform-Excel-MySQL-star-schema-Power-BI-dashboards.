@@ -6,7 +6,7 @@
 -- source table is already one row per order, the union preserves that
 -- grain — no duplication risk, unlike a merge against OrderLines.
 -- =============================================================================
-
+USE meridian_officesupply_ordertocash_2022_2025;
 DROP VIEW IF EXISTS fact_order_process;
 
 CREATE VIEW fact_order_process AS
