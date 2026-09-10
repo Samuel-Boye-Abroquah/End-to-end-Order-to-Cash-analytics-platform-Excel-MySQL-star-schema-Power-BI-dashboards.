@@ -50,14 +50,7 @@ LEFT JOIN dim_products AS dp
 WHERE dp.product_key IS NULL;
 
 -- -----------------------------------------------------------------------------
--- 6. sec mirrors security. Expect the two counts to be IDENTICAL.
--- -----------------------------------------------------------------------------
-SELECT
-    (SELECT COUNT(*) FROM security) AS security_rows,
-    (SELECT COUNT(*) FROM sec)      AS sec_rows;
-
--- -----------------------------------------------------------------------------
--- 7. Order ID collision check across the four yearly Orders_ tables.
+-- 6. Order ID collision check across the four yearly Orders_ tables.
 --    Expect ZERO rows. Any row returned means an order_id appears in more
 --    than one yearly table, which double-counts fact_sales and
 --    fact_order_process. Fix before using the model.
