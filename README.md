@@ -96,7 +96,7 @@ Four years of data, fully reconciled against budget:
 
 ### Order Fulfilment & Operations
 
-![Order Fulfilment & Operations Dashboard](Documents/order-fulfillment-and-operations-dashboard.png)
+![Order Fulfilment & Operations Dashboard](Documents/are-we-growing-profitably-dashboard.png)
 
 *Order cycle times, AR aging buckets, and payment-method mix.*
 
