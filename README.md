@@ -6,22 +6,8 @@ An end-to-end analytics pipeline for a simulated multi-year office & tech supply
 
 ## Pipeline
 
-![Pipeline](documents/meridian_pipeline.png)
+![Pipeline](Documents/meridian_pipeline.png)
 
-```
-Excel Workbook (Orders/OrderLines 2022-2025, Products, Customers, Budget)
-Security.csv (general manager + state supervisor RLS assignments)
-        │
-        ▼  load_excel.py  (Python + pandas + SQLAlchemy)
-MySQL — raw tables, one per source sheet, plus Security imported directly
-        │
-        ▼  SQL views (Bronze → Gold)
-Governed star schema: fact_sales, fact_order_process, dim_products,
-dim_customers, dim_city, dim_date
-        │
-        ▼  ODBC
-Power BI — DAX measures, Row-Level Security (via Security table), two-page report
-```
 
 ---
 
