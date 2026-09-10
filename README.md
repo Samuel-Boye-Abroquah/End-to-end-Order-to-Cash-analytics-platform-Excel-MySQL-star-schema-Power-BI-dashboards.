@@ -68,10 +68,10 @@ Row-Level Security is applied dynamically via a `Security` table (imported direc
 ## Dashboard
 
 **Page 1 — Are We Growing Profitably?**
-![Are We Growing Profitably](documents/are_we_growing_profitably_dashboard.png)
+![Are We Growing Profitably](Documents/are-we-growing-profitably-dashboard.png)
 
 **Page 2 — Order Fulfillment & Operations**
-![Order Fulfillment & Operations](documents/order_fulfillment_&_operations.png)
+![Order Fulfillment & Operations](Documents/order-fulfillment-and-operations-dashboard.png)
 
 ---
 
