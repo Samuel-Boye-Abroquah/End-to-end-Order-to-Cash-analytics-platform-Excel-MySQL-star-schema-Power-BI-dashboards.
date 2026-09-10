@@ -10,6 +10,7 @@
 DROP VIEW IF EXISTS fact_order_process;
 
 CREATE VIEW fact_order_process AS
+
 SELECT
     order_id,
     customer_id,
@@ -21,30 +22,57 @@ SELECT
     payment_date,
     payment_method,
     shipping_state,
-    order_status,
+    order_status AS status,
     payment_status
 FROM Orders_2022
 
 UNION ALL
 
 SELECT
-    order_id, customer_id, order_date, order_confirmation_date, ship_date,
-    delivery_date, invoice_date, payment_date, payment_method,
-    shipping_state, order_status, payment_status
+    order_id,
+    customer_id,
+    order_date,
+    order_confirmation_date,
+    ship_date,
+    delivery_date,
+    invoice_date,
+    payment_date,
+    payment_method,
+    shipping_state,
+    order_status AS status,
+    payment_status
 FROM Orders_2023
 
 UNION ALL
 
 SELECT
-    order_id, customer_id, order_date, order_confirmation_date, ship_date,
-    delivery_date, invoice_date, payment_date, payment_method,
-    shipping_state, status, payment_status
+    order_id,
+    customer_id,
+    order_date,
+    order_confirmation_date,
+    ship_date,
+    delivery_date,
+    invoice_date,
+    payment_date,
+    payment_method,
+    shipping_state,
+    order_status AS status,
+    payment_status
 FROM Orders_2024
 
 UNION ALL
 
 SELECT
-    order_id, customer_id, order_date, order_confirmation_date, ship_date,
-    delivery_date, invoice_date, payment_date, payment_method,
-    shipping_state, order_status, payment_status
+    order_id,
+    customer_id,
+    order_date,
+    order_confirmation_date,
+    ship_date,
+    delivery_date,
+    invoice_date,
+    payment_date,
+    payment_method,
+    shipping_state,
+    order_status AS status,
+    payment_status
 FROM Orders_2025;
