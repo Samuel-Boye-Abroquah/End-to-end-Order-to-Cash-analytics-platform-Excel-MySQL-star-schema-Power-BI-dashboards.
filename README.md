@@ -317,7 +317,7 @@ The model contains measures for:
 Complete DAX definitions are documented in:
 
 ```text
-Documents/DAX_Measure_Library.dax
+Documents/Measure.dax
 ```
 
 ---
