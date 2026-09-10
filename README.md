@@ -6,6 +6,8 @@ An end-to-end analytics pipeline for a simulated multi-year office & tech supply
 
 ## Pipeline
 
+![Pipeline](documents/meridian_pipeline.png)
+
 ```
 Excel Workbook (Orders/OrderLines 2022-2025, Products, Customers, Budget)
 Security.csv (general manager + state supervisor RLS assignments)
