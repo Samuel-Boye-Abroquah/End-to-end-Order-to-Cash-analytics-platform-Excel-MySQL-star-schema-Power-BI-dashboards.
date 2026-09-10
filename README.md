@@ -90,7 +90,7 @@ Four years of data, fully reconciled against budget:
 
 ### Executive Summary — Are We Growing Profitably?
 
-![Are We Growing Profitably Dashboard](Documents/are-we-growing-profitably-dashboard.png)
+![Data Flow: Source to Gold Layer](documents/data_warehouse_architecture.png)
 
 *Revenue vs budget, YoY growth, and profit margin at a glance.*
 
