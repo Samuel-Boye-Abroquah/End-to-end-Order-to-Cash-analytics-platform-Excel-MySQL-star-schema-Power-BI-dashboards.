@@ -11,27 +11,38 @@ An end-to-end analytics pipeline for a simulated multi-year office & tech supply
 
 ---
 
-## Repository Structure
+## 📂 Repository Structure
 
 ```
-meridian-order-to-cash-analytics/
+## 📂 Repository Structure
+
+```text
+End-to-End-Order-to-Cash-Analytics-Platform/
+│
+├── Dataset/
+│   ├── Meridian_OfficeSupply_OrderToCash_2022-2025.xlsx
+│   └── security.csv
+│
 ├── python/
-│   └── load_excel.py              # Excel → MySQL ingestion
-├── scripts/
-│   ├── 01_fact_order_process.sql
-│   ├── 02_fact_sales.sql
-│   ├── 03_dim_products.sql
-│   ├── 04_dim_customers.sql
-│   ├── 05_dim_city.sql
-│   ├── 06_dim_date.sql
-│   └── 99_validation.sql          # Run before connecting Power BI
-├── documents/
-│   ├── data_model.png             # Power BI model view
-│   ├── are_we_growing_profitably_dashboard.png
-│   └── order_fulfillment_&_operations.png
-├── LICENSE
-└── README.md
-```
+│   └── load_excel.py                 # Excel-to-MySQL ingestion script
+│
+├── sql/
+│   ├── 01_fact_order_process.sql     # Order fulfillment fact table
+│   ├── 02_fact_sales.sql             # Sales fact table
+│   ├── 03_dim_products.sql           # Product dimension
+│   ├── 04_dim_customers.sql          # Customer dimension
+│   ├── 05_dim_city.sql               # City dimension
+│   ├── 06_dim_date.sql               # Date dimension
+│   └── 99_validation.sql            # Data quality and validation checks
+│
+├── Documents/
+│   ├── data_model.png               # Star schema data model
+│   ├── meridian_pipeline.png        # End-to-end data pipeline
+│   ├── are-we-growing-profitably-dashboard.png
+│   └── order-fulfillment-operations-dashboard.png
+│
+├── README.md
+└── LICENSE
 
 ---
 
