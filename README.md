@@ -1,42 +1,118 @@
-# Meridian Order-to-Cash Analytics
+# Meridian Order-to-Cash Analytics Platform
 
-An end-to-end analytics pipeline for a simulated multi-year office & tech supply distributor — **Python → SQL → Data Modeling → Power BI**, from a raw multi-sheet Excel workbook to a governed star schema and a two-page executive dashboard.
+An end-to-end analytics solution built for a simulated multi-year office & technology supply distributor. The project transforms raw operational data from Excel into a governed analytical model through automated ingestion, dimensional modeling, validation, and business intelligence reporting.
+
+The solution demonstrates the complete analytics lifecycle:
+
+**Excel → Python → MySQL → Star Schema → Power BI Semantic Model → Executive Dashboards**
 
 ---
 
-## Pipeline
+## 📖 Project Overview
 
-![Pipeline](Documents/meridian_pipeline.png)
+This project simulates a real-world Order-to-Cash (O2C) environment covering sales, fulfillment, invoicing, customer management, budgeting, and cash collection activities from 2022–2025.
+
+The objective was to design and implement a scalable analytics platform capable of:
+
+- Consolidating operational data from multiple business functions
+- Building a governed dimensional model
+- Supporting secure self-service analytics
+- Tracking profitability and operational performance
+- Enabling role-based data access through Row-Level Security (RLS)
+
+The final solution delivers a reporting layer designed for both executive leadership and operational teams.
+
+---
+
+## 🏗️ Solution Architecture
+
+Documents/meridian_pipeline.png
+
+### Data Flow
+
+```text
+Source Files
+├── Orders
+├── OrderLines
+├── Products
+├── Customers
+├── Budget
+└── Security
+
+        │
+        ▼
+
+Python ETL
+(Pandas + SQLAlchemy)
+
+        │
+        ▼
+
+MySQL Raw Layer
+
+        │
+        ▼
+
+SQL Transformations
+
+        │
+        ▼
+
+Star Schema
+├── fact_sales
+├── fact_order_process
+├── dim_products
+├── dim_customers
+├── dim_city
+└── dim_date
+
+        │
+        ▼
+
+Power BI Semantic Model
+├── Relationships
+├── DAX Measures
+├── Calculated Columns
+├── Row-Level Security
+└── KPI Logic
+
+        │
+        ▼
+
+Business Dashboards
+├── Are We Growing Profitably?
+└── Order Fulfillment & Operations
+```
 
 ---
 
 ## 📂 Repository Structure
 
-```
+```text
 End-to-End-Order-to-Cash-Analytics-Platform/
 │
 ├── Dataset/
 │   ├── Meridian_OfficeSupply_OrderToCash_2022-2025.xlsx
-│   └── security.csv
+│   └── Security.csv
 │
 ├── python/
-│   └── load_excel.py                 # Excel-to-MySQL ingestion script
+│   └── load_excel.py
 │
 ├── sql/
-│   ├── 01_fact_order_process.sql     # Order fulfillment fact table
-│   ├── 02_fact_sales.sql             # Sales fact table
-│   ├── 03_dim_products.sql           # Product dimension
-│   ├── 04_dim_customers.sql          # Customer dimension
-│   ├── 05_dim_city.sql               # City dimension
-│   ├── 06_dim_date.sql               # Date dimension
-│   └── 99_validation.sql            # Data quality and validation checks
-Connecting to power BI 
+│   ├── 01_fact_order_process.sql
+│   ├── 02_fact_sales.sql
+│   ├── 03_dim_products.sql
+│   ├── 04_dim_customers.sql
+│   ├── 05_dim_city.sql
+│   ├── 06_dim_date.sql
+│   └── 99_validation.sql
+│
 ├── Documents/
-│   ├──Measure.dax
-│   ├── data_model.png               # Star schema data model
-│   ├── meridian_pipeline.png        # End-to-end data pipeline
+│   ├── data_model.png
+│   ├── meridian_pipeline.png
+│   ├── DAX_Measure_Library.dax
 │   ├── are-we-growing-profitably-dashboard.png
-│   └── order-fulfillment-operations-dashboard.png
+│   └── order-fulfillment-and-operations-dashboard.png
 │
 ├── README.md
 └── LICENSE
@@ -44,64 +120,412 @@ Connecting to power BI
 
 ---
 
-## Data Model
+## 🛠 Data Engineering
 
-![Data Model](documents/data_model.png)
+### Data Ingestion
 
-- **`fact_sales`** — line-item grain, one row per order line
-- **`fact_order_process`** — order grain, an accumulating-snapshot fact table tracking the full order → confirmation → ship → deliver → invoice → payment lifecycle
-- **`dim_products`** — one row per product per year (yearly cost/price unpivoted; price is never part of the product's identity key)
-- **`dim_customers`**, **`dim_city`** — customer and geography dimensions
-- **`dim_date`** — materialized calendar table, explicit 2022–2025 range (not `CALENDARAUTO()`)
+A custom Python ETL process loads all workbook sheets into MySQL and automates the creation of source tables.
 
-Row-Level Security is applied dynamically via a `Security` table (imported directly from CSV — a general manager scoped to all states, and individual supervisors each scoped to their own state), matched against the logged-in user's email.
+### Technologies
 
-`fact_order_process`'s status column is aliased to `status` at the SQL source (from the raw `order_status` column) — so the field name is consistent from the database straight through to every DAX measure, with no silent rename happening only inside Power BI.
+- Python
+- Pandas
+- SQLAlchemy
+- MySQL
 
----
+### Ingestion Process
 
-## Validation
+1. Read workbook sheets dynamically.
+2. Create corresponding MySQL tables.
+3. Load source data into raw tables.
+4. Import Security.csv for Row-Level Security.
+5. Validate load counts against source records.
 
-`scripts/99_validation.sql` runs 7 sanity checks — row counts, revenue totals against known reference figures, orphan-key checks, and an order-ID collision check across the yearly source tables. **Run this before connecting Power BI** — it's the difference between trusting the model and hoping it's right.
-
----
-
-## Dashboard
-
-**Page 1 — Are We Growing Profitably?**
-![Are We Growing Profitably](Documents/are-we-growing-profitably-dashboard.png)
-
-**Page 2 — Order Fulfillment & Operations**
-![Order Fulfillment & Operations](Documents/order-fulfillment-and-operations-dashboard.png)
+This approach creates a repeatable ingestion framework and eliminates manual imports.
 
 ---
 
-## Tools & Technologies
+## ⭐ Dimensional Model
 
-| Layer | Tools |
-|---|---|
-| Ingestion | Python (pandas, SQLAlchemy) |
+![Data Model](Documents/data_model.png)
+
+layer follows Kimball-style dimensional modeling principles.
+
+### Fact Tables
+
+#### fact_sales
+
+**Grain:** One row per order line.
+
+Captures:
+
+- Revenue
+- Quantity Sold
+- Unit Price
+- Customer Relationships
+- Product Relationships
+
+Used for:
+
+- Sales reporting
+- Revenue analysis
+- Product performance analysis
+- Profitability metrics
+
+---
+
+#### fact_order_process
+
+**Grain:** One row per order.
+
+An accumulating snapshot fact table tracking the complete order lifecycle:
+
+- Order Date
+- Confirmation Date
+- Ship Date
+- Delivery Date
+- Invoice Date
+- Payment Date
+- Order Status
+
+Used for:
+
+- Fulfillment analysis
+- SLA monitoring
+- Order lifecycle tracking
+- Collection cycle analysis
+
+---
+
+### Dimension Tables
+
+#### dim_products
+
+Contains:
+
+- Product Name
+- Category
+- Subcategory
+- Unit Cost
+- Unit Price
+- Product Year
+
+Designed with yearly product records to support changing costs and prices over time.
+
+---
+
+#### dim_customers
+
+Contains:
+
+- Customer Information
+- Customer Segment
+- Geographic Attributes
+- Sales Territory
+
+---
+
+#### dim_city
+
+Contains:
+
+- City
+- State
+- Geographic Reporting Structure
+
+---
+
+#### dim_date
+
+A fully materialized calendar table covering 2022–2025.
+
+Includes:
+
+- Date
+- Year
+- Quarter
+- Month
+- Month Name
+- Week Number
+- Month Year
+
+Built in SQL rather than using Power BI's `CALENDARAUTO()` function.
+
+---
+
+## ✅ Data Validation Framework
+
+The project includes a dedicated validation layer.
+
+### 99_validation.sql
+
+Validation checks include:
+
+- Source-to-target row counts
+- Revenue reconciliation
+- Duplicate record detection
+- Null value checks
+- Foreign key integrity checks
+- Orphan record checks
+- Order ID collision checks
+
+Running these checks before connecting Power BI ensures reports are built on trusted and validated data.
+
+---
+
+## 🔐 Data Governance & Security
+
+### Row-Level Security (RLS)
+
+Dynamic Row-Level Security is implemented using the Security table imported from `Security.csv`.
+
+Supported roles:
+
+- General Manager
+- State Supervisor
+
+User access is filtered dynamically using the logged-in user's email address, ensuring each user only sees data for their assigned territory.
+
+---
+
+## 📊 Power BI Semantic Model
+
+The semantic model sits between the SQL star schema and the reporting layer.
+
+### Relationships
+
+- One-to-many dimensional relationships
+- Centralized fact tables
+- Single-direction filter propagation
+- Optimized analytical model
+
+---
+
+### DAX Measures
+
+The model contains measures for:
+
+#### Revenue & Orders
+
+- Total Sales
+- Total Sales All Orders
+- Total Orders
+- Completed Orders
+- Cancelled Orders
+- Returned Orders
+
+#### Profitability
+
+- Average Order Value (AOV)
+- Total Cost
+- Total Profit
+- Profit Margin %
+- Average Monthly Revenue
+
+#### Fulfillment
+
+- Avg Days to Payment
+- Avg Order-to-Delivery Days
+- Avg Order-to-Pay Days
+
+#### AR Aging
+
+- AR Aging Color
+- AR Aging Bucket
+
+#### Product Analytics
+
+- Product Rank Top
+- Product Rank Bottom
+- Top 5 Sales
+- Bottom 5 Sales
+
+#### Budget Analysis
+
+- Budget Revenue
+- Budget Variance
+- Budget Variance %
+
+#### Conditional Formatting
+
+- Status Color
+- Payment Method Color
+
+---
+
+### Calculated Columns
+
+#### fact_order_process
+
+- Days Outstanding
+- Order-to-Delivery Days
+- Order-to-Pay Days
+- AR Aging Bucket
+
+#### dim_date
+
+- Month Year
+
+---
+
+### DAX Documentation
+
+Complete DAX definitions are documented in:
+
+```text
+Documents/DAX_Measure_Library.dax
+```
+
+---
+
+## 📈 Dashboard 1: Are We Growing Profitably?
+
+![cuments/are-we-growing-profitably-dashboard.png
+
+### Business Questions Answered
+
+- Is revenue growing over time?
+- Is profitability improving?
+- Which products generate the most profit?
+- Which customers generate the most revenue?
+- Are budget targets being achieved?
+
+### Key KPIs
+
+- Revenue
+- Gross Profit
+- Profit Margin %
+- Budget Variance
+- Average Order Value
+
+---
+
+## 🚚 Dashboard 2: Order Fulfillment & Operations
+
+Documents/order-fulfillment-and-operations-dashboard.png
+
+### Business Questions Answered
+
+- Are orders being delivered on time?
+- Which regions have fulfillment issues?
+- How quickly are customers paying invoices?
+- What is the AR aging profile?
+- Are SLAs being met?
+
+### Key KPIs
+
+- Order Status
+- Delivery Performance
+- Collection Performance
+- AR Aging Distribution
+- Fulfillment Metrics
+
+---
+
+## 💡 Technical Highlights
+
+- Automated Excel-to-MySQL ingestion
+- Star schema dimensional modeling
+- Accumulating snapshot fact table
+- Dynamic Row-Level Security (RLS)
+- DAX-based KPI framework
+- Data validation and reconciliation checks
+- ODBC integration
+- Power BI semantic modeling
+- Executive and operational reporting
+
+---
+
+## 🛠 Tools & Technologies
+
+| Layer | Technology |
+|---------|------------|
+| Data Source | Excel |
+| Security Source | CSV |
+| ETL | Python, Pandas, SQLAlchemy |
 | Database | MySQL 8 |
-| Modeling | SQL views, surrogate keys, recursive CTEs |
-| Reporting | Power BI (DAX, dynamic Row-Level Security, ODBC) |
+| Data Modeling | SQL Star Schema |
+| Reporting | Power BI |
+| Analytics | DAX |
+| Connectivity | ODBC |
+| Security | Dynamic RLS |
+| Documentation | Markdown |
 
 ---
 
-## How to Run
+## 🚀 How to Run
 
-1. Edit `python/load_excel.py` with your own MySQL credentials (never commit real credentials).
-2. Run `python load_excel.py` to load the raw workbook into MySQL.
-3. Run `scripts/01` through `scripts/06` in order to build the star schema.
-4. Run `scripts/99_validation.sql` — confirm every check passes before proceeding.
-5. Connect Power BI Desktop via ODBC and build measures/report on top of the views.
+### 1. Load Source Data
+
+```bash
+python load_excel.py
+```
+
+### 2. Build the Star Schema
+
+Execute the SQL files in order:
+
+```text
+01_fact_order_process.sql
+02_fact_sales.sql
+03_dim_products.sql
+04_dim_customers.sql
+05_dim_city.sql
+06_dim_date.sql
+```
+
+### 3. Validate the Data
+
+```text
+99_validation.sql
+```
+
+Ensure all validation checks pass before proceeding.
+
+### 4. Connect Power BI
+
+Connect to MySQL using ODBC and import:
+
+```text
+fact_sales
+fact_order_process
+dim_products
+dim_customers
+dim_city
+dim_date
+Security
+```
+
+### 5. Build the Semantic Model
+
+- Create relationships
+- Create DAX measures
+- Configure Row-Level Security
+- Build dashboards
 
 ---
 
-## About
+## 👤 About
 
-## About
+Built by **Samuel Boye Abroquah** — Quality Assurance Technician and Data Analytics Professional applying 12+ years of process-validation discipline to data engineering, business intelligence, and analytical system design.
 
-Built by **Samuel Boye Abroquah** — Quality Assurance & Data Analytics professional, applying 12+ years of process-validation discipline to data engineering.
+- LinkedIn: https://linkedin.com/in/Samuel-Boye-Abroquah
+- GitHub: https://github.com/Samuel-Boye-Abroquah
 
-   [LinkedIn](https://linkedin.com/in/Samuel-Boye-Abroquah)
-   [GitHub](https://github.com/Samuel-Boye-Abroquah)
+---
+
+## 🎯 Skills Demonstrated
+
+- Data Engineering
+- Analytics Engineering
+- SQL Development
+- Dimensional Modeling
+- ETL Development
+- Power BI Development
+- DAX
+- Data Quality Management
+- KPI Design
+- Business Intelligence
+- Data Governance
+- Row-Level Security (RLS)
+``
