@@ -351,7 +351,6 @@ Documents/Measure.dax
 
 ## 🚚 Dashboard 2: Order Fulfillment & Operations
 
-![Order Fulfillment & Operations](Documents/order-fulfillment-and-operations-dashboard.png)
 
 ### Business Questions Answered
 
