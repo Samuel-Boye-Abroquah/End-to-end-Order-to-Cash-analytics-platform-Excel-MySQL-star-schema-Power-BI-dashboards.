@@ -89,7 +89,7 @@ This approach creates a repeatable ingestion framework and eliminates manual imp
 
 ---
 
-## ⭐ Dimensional Model
+  ## ⭐ Dimensional Model
 
 ![Data Model](Documents/data_model.png)
 
