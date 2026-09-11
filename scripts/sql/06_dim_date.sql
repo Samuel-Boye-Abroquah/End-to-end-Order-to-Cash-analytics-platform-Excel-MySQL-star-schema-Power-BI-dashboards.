@@ -9,7 +9,7 @@
 -- This replaces CALENDARAUTO(), which scans the whole model and can
 -- introduce dead years before or after the actual data range.
 --
--- DayOfWeekNo follows MySQL's DAYOFWEEK: 1 = Sunday … 7 = Saturday.
+-- day_of_week_no follows MySQL's DAYOFWEEK: 1 = Sunday … 7 = Saturday.
 -- =============================================================================
 
 -- Recursion depth must cover the full date range. 2022-01-01 through
@@ -29,18 +29,18 @@ DROP TABLE IF EXISTS dim_date_tbl;
 -- Physical date spine
 -- ---------------------------------------------------------------------------
 CREATE TABLE dim_date_tbl (
-    `Date`      DATE         NOT NULL,
-    `Year`      INT          NOT NULL,
-    MonthNo     INT          NOT NULL,
-    MonthName   VARCHAR(10)  NOT NULL,
-    Quarter     VARCHAR(2)   NOT NULL,
-    DayOfWeekNo INT          NOT NULL,
-    DayName     VARCHAR(10)  NOT NULL,
-    PRIMARY KEY (`Date`)
+    date            DATE         NOT NULL,
+    year            INT          NOT NULL,
+    month_no        INT          NOT NULL,
+    month_name      VARCHAR(10)  NOT NULL,
+    quarter         VARCHAR(2)   NOT NULL,
+    day_of_week_no  INT          NOT NULL,
+    day_name        VARCHAR(10)  NOT NULL,
+    PRIMARY KEY (date)
 ) ENGINE = InnoDB;
 
 INSERT INTO dim_date_tbl (
-    `Date`, `Year`, MonthNo, MonthName, Quarter, DayOfWeekNo, DayName
+    date, year, month_no, month_name, quarter, day_of_week_no, day_name
 )
 WITH RECURSIVE seq AS (
     SELECT DATE('2022-01-01') AS d
@@ -64,11 +64,11 @@ FROM seq;
 -- ---------------------------------------------------------------------------
 CREATE VIEW dim_date AS
 SELECT
-    `Date`,
-    `Year`,
-    MonthNo,
-    MonthName,
-    Quarter,
-    DayOfWeekNo,
-    DayName
+    date,
+    year,
+    month_no,
+    month_name,
+    quarter,
+    day_of_week_no,
+    day_name
 FROM dim_date_tbl;
