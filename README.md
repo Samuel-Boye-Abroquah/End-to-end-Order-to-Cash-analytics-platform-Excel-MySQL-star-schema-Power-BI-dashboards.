@@ -331,6 +331,10 @@ Documents/Measure.dax
 
 ![Are We Growing Profitably](Documents/are-we-growing-profitably-dashboard.png)
 
+
+![Order Fulfillment & Operations](Documents/order-fulfillment-and_operations-dashboard.png)
+
+
 ### Business Questions Answered
 
 - Is revenue growing over time?
