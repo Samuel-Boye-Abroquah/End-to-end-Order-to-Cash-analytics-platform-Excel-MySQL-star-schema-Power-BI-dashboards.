@@ -158,14 +158,19 @@ Designed with yearly product records to support changing costs and prices over t
 
 ---
 
-#### dim_customers
+### dim_customers
 
-Contains:
+Customer dimension at a one-row-per-customer grain.
 
-- Customer Information
-- Customer Segment
-- Geographic Attributes
-- Sales Territory
+Features:
+
+- Customer segmentation
+- Standardized state abbreviations and full state names
+- Geographic reporting attributes
+- Payment term tracking
+- Row-Level Security support via state mapping
+
+The dimension exposes both state initials (e.g., KY) and full state names (e.g., Kentucky) to support reporting, mapping, and security filtering requirements.
 
 ---
 
