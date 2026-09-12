@@ -354,4 +354,7 @@ SWITCH (
 -- Month-year label for time-based visuals.
 -- Column: dim_date[Month Year]
 Month Year =
-FORMAT ( dim_date[Date], "MMM YYYY" )
+FORMAT ( dim_date[Date], "MMM YYYY" 
+-- Row level access for each state 
+dim_customers[state] = LOOKUPVALUE(Security[state], Security[Email], USERPRINCIPALNAME())
+    || LOOKUPVALUE(Security[Position], Security[Email], USERPRINCIPALNAME()) = "General Manager"
