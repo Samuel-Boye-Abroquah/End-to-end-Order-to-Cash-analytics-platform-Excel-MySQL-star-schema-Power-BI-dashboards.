@@ -52,28 +52,35 @@ The final solution delivers a reporting layer designed for both executive leader
 
 ```text
 End-to-End-Order-to-Cash-Analytics-Platform/
+## 📂 Repository Structure
+
+```text
+meridian-order-to-cash-analytics/
 │
 ├── Dataset/
 │   ├── Meridian_OfficeSupply_OrderToCash_2022-2025.xlsx
-│   └── Security.csv
+│   └── security.csv
 │
-├── python/
-│   └── load_excel.py
-│
-├── sql/
-│   ├── 01_fact_order_process.sql
-│   ├── 02_fact_sales.sql
-│   ├── 03_dim_products.sql
-│   ├── 04_dim_customers.sql
-│   ├── 05_dim_city.sql
-│   ├── 06_dim_date.sql
-│   └── 99_validation.sql
-Load to power PI
 ├── Documents/
-│   ├── Measure.dax data_model.png
 │   ├── are-we-growing-profitably-dashboard.png
-│   ├──  meridian_pipeline.png
-│   └── order-fulfillment-and-operations-dashboard.png 
+│   ├── data_model.png
+│   ├── measure.dax
+│   ├── meridian_pipeline.png
+│   └── order-fulfillment-and-operations-dashboard.png
+│
+├── scripts/
+│   ├── python/
+│   │   ├── 01_load_excel.py
+│   │   └── 02_load_csv.py
+│   │
+│   └── sql/
+│       ├── 01_fact_order_process.sql
+│       ├── 02_fact_sales.sql
+│       ├── 03_dim_products.sql
+│       ├── 04_dim_customers.sql
+│       ├── 05_dim_city.sql
+│       ├── 06_dim_date.sql
+│       └── 99_validation.sql
 │
 ├── README.md
 └── LICENSE
