@@ -69,3 +69,12 @@ FROM (
 ) AS t
 GROUP BY order_id
 HAVING COUNT(*) > 1;
+
+-- -----------------------------------------------------------------------------
+-- 7. Security table sanity check. Expect the two counts to be IDENTICAL —
+--    a gap means the same email is assigned more than once, which would
+--    make Row-Level Security ambiguous for that user.
+-- -----------------------------------------------------------------------------
+SELECT COUNT(*) AS total_security_rows, COUNT(DISTINCT Email) AS distinct_emails
+FROM Security;
+
