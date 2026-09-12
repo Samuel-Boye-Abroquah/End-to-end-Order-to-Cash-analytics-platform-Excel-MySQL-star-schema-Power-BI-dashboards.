@@ -17,7 +17,7 @@ SELECT
     customer_id,
     customer_name,
     segment,
-    LOWER(TRIM(state_raw))  AS state_initials,
+    Upper(TRIM(state_raw))  AS state_initials,
     CASE UPPER(TRIM(state_raw))
         WHEN 'AL' THEN 'Alabama'
         WHEN 'AK' THEN 'Alaska'
