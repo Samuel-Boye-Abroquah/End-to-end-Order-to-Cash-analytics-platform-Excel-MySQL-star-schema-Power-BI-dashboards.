@@ -47,10 +47,6 @@ The final solution delivers a reporting layer designed for both executive leader
 
 
 ---
-
-## 📂 Repository Structure
-
-```text
 End-to-End-Order-to-Cash-Analytics-Platform/
 ## 📂 Repository Structure
 
