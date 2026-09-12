@@ -1,10 +1,27 @@
-# Meridian Order-to-Cash Analytics Platform
+<h1 align="center">
+  <br>
+  📊 Meridian Office & Tech Supply Co.
+  <br>
+  <sub>Order-to-Cash Analytics Platform · 2022 – 2025</sub>
+  <br>
+</h1>
 
-An end-to-end analytics solution built for a simulated multi-year office & technology supply distributor. The project transforms raw operational data from Excel into a governed analytical model through automated ingestion, dimensional modeling, validation, and business intelligence reporting.
+<p align="center">
+  <img alt="MySQL" src="https://img.shields.io/badge/MySQL-8.0+-4479A1?style=for-the-badge&logo=mysql&logoColor=white">
+  <img alt="Python" src="https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white">
+  <img alt="Pandas" src="https://img.shields.io/badge/pandas-2.0+-150458?style=for-the-badge&logo=pandas&logoColor=white">
+  <img alt="Power BI" src="https://img.shields.io/badge/Power%20BI-F2C811?style=for-the-badge&logo=powerbi&logoColor=black">
+  <img alt="License" src="https://img.shields.io/badge/license-MIT-green?style=for-the-badge">
+</p>
+
+<p align="center">
+  <b>An end-to-end analytics solution built for a simulated multi-year office & technology supply distributor. The project transforms raw operational data from Excel into a governed analytical model through automated ingestion, dimensional modeling, validation, and business intelligence reporting.
 
 The solution demonstrates the complete analytics lifecycle:
 
 **Excel → Python → MySQL → Star Schema → Power BI Semantic Model → Executive Dashboards**
+</p>
+
 
 ---
 
